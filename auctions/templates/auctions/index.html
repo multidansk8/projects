@@ -1,0 +1,25 @@
+{% extends "auctions/layout.html" %}
+
+{% load static %}
+
+{% block body %}
+    <h2>{{ Title }}</h2>
+    {% if len == 0 %}
+        No Listings To Display
+    {% endif %}
+
+    <div>
+        {% for listing in listings %}
+            <a href="{% url 'listing' listing.id %}">
+                {{ listing.name }}<br>
+            </a>
+            {% if listing.image != NULL %}
+                <img src="{{ listing.image }}" alt="test_pic" style="width:250px;height:200px;"><br>
+            {% endif %}
+            Description: {{ listing.description }}<br>
+            Price: {{ listing.price }} $<br>
+            Author: {{ listing.author }}<br>
+            Date Created: {{ listing.creation_date }}<br><br>
+        {% endfor %}
+    </div>
+{% endblock %}

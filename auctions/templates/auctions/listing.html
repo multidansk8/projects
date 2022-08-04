@@ -1,0 +1,73 @@
+{% extends "auctions/layout.html" %}
+
+{% load static %}
+
+{% block body %}
+    <h2>Listing: {{ listing.name }}</h2>
+    {% if listing.image != NULL %}
+        <img src="{{ listing.image }}" alt="test_pic" style="width:250px;height:200px;"><br>
+    {% endif %}
+    <div>
+        Description: {{ listing.description }}<br>
+        Price: <i>{{ listing.price }}</i><br>
+        Number of Bids: {{ bidNo }}<br>
+        {% if user.username == highestBid.bidder.username %}
+            Current Highest Bidder: You<br>
+        {% else %}
+            Current Highest Bidder: {{ highestBid.bidder.username }}<br>
+        {% endif %}
+        Author: {{ listing.author }}<br>
+        Category: {{ listing.category }}<br><br>
+        {% if user.is_authenticated and listing.active == True %}
+            <form action="{% url 'listing' listing.id %}" method="POST">
+                {% csrf_token %}
+                <input type="number" step="0.01" name="bid" placeholder="Enter Bid">
+                <input type="submit" value="Place Bid" name="bidButton"><br><br>
+                {% if listing.author.username == user.username %}
+                    <input type="submit" value="Close listing" name="status"><br><br>
+                {% endif %}
+            </form>
+
+
+            <form action="{% url 'watchlist' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" value="yes" name="watch">
+                <input type="hidden" value="{{ listing.id }}" name="listingToAdd">
+                {% if inWatchlist == False %}
+                    <input type="submit" value="Add To Watchlist" name="watchl"><br>
+                {% else %}
+                    <input type="submit" value="Remove From Watchlist" name="removeFrom">
+                {% endif %}
+            </form>
+        {% elif listing.active == False %}
+            {% if user.username == highestBid.bidder.username %}
+                <b><i>You Won This Bid!</i></b><br>
+            {% elif highestBid.bidder.username == none %}
+                <b><i>No Winner For This Bid Since No Bids Were Placed</i></b><br>
+            {% else %}
+                <b><i>The Winner Of This Bid Is {{ highestBid.bidder.username }}</i></b><br>
+            {% endif %}
+        {% endif %}
+        <br>
+    </div>
+    <div>
+        <h3>Comments:</h3><br>
+        {% if user.is_authenticated %}
+            <form action="{% url 'listing' listing.id %}" method="POST">
+                {% csrf_token %}
+                <textarea name="comment" rows="3" cols="50" id="txta" required></textarea><br>
+                <input type="submit" name="commentsSub"><br><br>
+            </form>
+        {% endif %}
+    </div>
+    <div>
+        {% if commentLen == 0 %}
+            No Comments To Display
+        {% else %}
+            {% for comment in comments %}
+                {{ comment.comment }}<br>
+                {{ comment.commenter }}<br><br>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endblock %}
